@@ -7,6 +7,9 @@ import { BoxGeometry, Mesh, MeshBasicMaterial } from 'three'
 import { Cube } from './components/Cube'
 import { Plane } from './components/Plane'
 import { Sphere } from './components/Sphere'
+import { Text } from '@react-three/drei'
+import { Group } from 'three'
+
 
 function Scene() {
   const { performance } = useControls('Monitoring', {
@@ -19,9 +22,12 @@ function Scene() {
 
   const cubeRef = useRef<Mesh<BoxGeometry, MeshBasicMaterial>>(null)
 
+  const cubeGroupRef = useRef<Group>(null)
+
   useFrame((_, delta) => {
     if (animate) {
-      cubeRef.current!.rotation.y += delta / 3
+      cubeGroupRef.current!.children[0].rotation.y += delta / 3
+      cubeGroupRef.current!.children[1].rotation.y -= delta / 3
     }
   })
 
@@ -32,16 +38,26 @@ function Scene() {
       <OrbitControls makeDefault />
 
       <directionalLight
-        position={[-2, 2, 3]}
+        position={[-4, 2, 3]}
         intensity={1.5}
         castShadow
         shadow-mapSize={[1024 * 2, 1024 * 2]}
       />
       <ambientLight intensity={0.2} />
 
-      <Cube ref={cubeRef} />
+      <group ref={cubeGroupRef}>
+      <Cube position={[0, 0, 0]} />
+      <Cube position={[0, 1.5, 0]} />
+    </group>
       <Sphere />
       <Plane />
+      <Text
+        position={[0, 2, 0]} // Position to be set according to where the cube and sphere are located
+        fontSize={1}
+        color={'rgb(128,238,211)'} // Change to your preferred color
+      >
+        Alex's playground
+      </Text>
     </>
   )
 }

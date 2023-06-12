@@ -2,6 +2,7 @@ import { PivotControls } from '@react-three/drei'
 import { useControls } from 'leva'
 import { useRef } from 'react'
 import { BufferGeometry, Group, Mesh, MeshStandardMaterial } from 'three'
+import { useThree, useFrame } from '@react-three/fiber'
 
 function Sphere() {
   const sphereRef = useRef<Mesh<BufferGeometry, MeshStandardMaterial>>(null)
@@ -9,13 +10,27 @@ function Sphere() {
 
   const { position, color, gizmo } = useControls('Sphere', {
     position: [-2, 0, 0],
-    color: 'rgb(226,244,199)',
+    color: 'rgb(242,171,30)',
     gizmo: false,
   })
 
+  const { size, setDefaultCamera } = useThree()
+  const aspect = size.width / size.height
+
+  useFrame(({ camera }) => {
+    camera.fov = aspect > 1 ? fov : fov / aspect
+    camera.updateProjectionMatrix()
+  })
+
+  const growOnPointerDown = () => {
+    sphereRef.current!.scale.x += 0.1
+    sphereRef.current!.scale.y += 0.1
+    sphereRef.current!.scale.z += 0.1
+  }
+
   return (
     <PivotControls anchor={[0, 0, 0]} depthTest={false} visible={gizmo} ref={pivotRef}>
-      <mesh position={position} ref={sphereRef} castShadow>
+      <mesh position={position} ref={sphereRef} castShadow onPointerDown={growOnPointerDown}>
         <sphereGeometry args={[1, 30, 30]} />
         <meshStandardMaterial color={color} />
       </mesh>
