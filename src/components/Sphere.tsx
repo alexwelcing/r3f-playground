@@ -14,11 +14,7 @@ function Sphere() {
     gizmo: false,
   })
 
-  const { size, setDefaultCamera } = useThree()
-  const aspect = size.width / size.height
-
   useFrame(({ camera }) => {
-    camera.fov = aspect > 1 ? fov : fov / aspect
     camera.updateProjectionMatrix()
   })
 

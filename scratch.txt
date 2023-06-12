@@ -1,0 +1,11 @@
+📦public
+ ┣ 📂fonts
+ ┃ ┣ 📜intelone-mono-font-family-bold.otf
+ ┃ ┣ 📜intelone-mono-font-family-bolditalic.otf
+ ┃ ┣ 📜intelone-mono-font-family-italic.otf
+ ┃ ┣ 📜intelone-mono-font-family-light.otf
+ ┃ ┣ 📜intelone-mono-font-family-lightitalic.otf
+ ┃ ┣ 📜intelone-mono-font-family-medium.otf
+ ┃ ┣ 📜intelone-mono-font-family-mediumitalic.otf
+ ┃ ┗ 📜intelone-mono-font-family-regular.otf
+ ┗ 📜vite.svg

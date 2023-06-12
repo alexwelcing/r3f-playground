@@ -47,13 +47,13 @@ function Scene() {
 
       <group ref={cubeGroupRef}>
       <Cube position={[0, 0, 0]} />
-      <Cube position={[0, 1.5, 0]} />
+      <Cube position={[0, 1.8, 0]} />
     </group>
       <Sphere />
       <Plane />
       <Text
-        position={[0, 2, 0]} // Position to be set according to where the cube and sphere are located
-        fontSize={1}
+        position={[0, 2, 2]} // Position to be set according to where the cube and sphere are located
+        fontSize={0.8}
         color={'rgb(128,238,211)'} // Change to your preferred color
       >
         Alex's playground
