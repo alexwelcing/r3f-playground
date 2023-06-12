@@ -1,8 +1,9 @@
 import { OrbitControls } from '@react-three/drei'
-import { useFrame } from '@react-three/fiber'
+import { Canvas, useFrame } from '@react-three/fiber'
 import { useControls } from 'leva'
 import { Perf } from 'r3f-perf'
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
+import { useLoader } from '@react-three/fiber'
 import { BoxGeometry, Mesh, MeshBasicMaterial } from 'three'
 import { Cube } from './components/Cube'
 import { Plane } from './components/Plane'
@@ -20,7 +21,29 @@ function Scene() {
     animate: true,
   })
 
-  const cubeRef = useRef<Mesh<BoxGeometry, MeshBasicMaterial>>(null)
+  function Cube() {
+    const meshRef = useRef()
+    useFrame((state) => {
+      meshRef.current.rotation.x += 0.01
+      meshRef.current.rotation.y += 0.01
+    })
+    return (
+      <mesh ref={meshRef}>
+        <boxGeometry />
+        <meshStandardMaterial color="orange" />
+      </mesh>
+    )
+  }
+
+  function MovingText() {
+    const textRef = useRef()
+    useFrame((state) => (textRef.current.position.x = Math.sin(state.clock.elapsedTime) * 2))
+    return (
+      <Text ref={textRef} fontSize={1} color="#555" position={[0, 0, 3]}>
+        hello
+      </Text>
+    )
+  }
 
   const cubeGroupRef = useRef<Group>(null)
 
@@ -33,31 +56,13 @@ function Scene() {
 
   return (
     <>
-      {performance && <Perf position='top-left' />}
-
-      <OrbitControls makeDefault />
-
-      <directionalLight
-        position={[-4, 2, 3]}
-        intensity={1.5}
-        castShadow
-        shadow-mapSize={[1024 * 2, 1024 * 2]}
-      />
-      <ambientLight intensity={0.2} />
-
-      <group ref={cubeGroupRef}>
-      <Cube position={[0, 0, 0]} />
-      <Cube position={[0, 1.8, 0]} />
-    </group>
-      <Sphere />
-      <Plane />
-      <Text
-        position={[0, 2, 2]} // Position to be set according to where the cube and sphere are located
-        fontSize={0.8}
-        color={'rgb(128,238,211)'} // Change to your preferred color
-      >
-        Alex's playground
-      </Text>
+    <Canvas camera={{ position: [5, 5, 10], fov: 25 }}>
+      <ambientLight intensity={0.5} />
+      <directionalLight position={[10, 10, 5]} />
+      <Cube />
+      <MovingText />
+      <OrbitControls minPolarAngle={0} maxPolarAngle={Math.PI / 2.1} />
+    </Canvas>
     </>
   )
 }
