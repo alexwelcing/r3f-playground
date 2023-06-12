@@ -9,7 +9,7 @@ function Sphere() {
 
   const { position, color, gizmo } = useControls('Sphere', {
     position: [-2, 0, 0],
-    color: 'darkorange',
+    color: 'rgb(226,244,199)',
     gizmo: false,
   })
 
