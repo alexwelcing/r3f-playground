@@ -1,10 +1,12 @@
 import { OrbitControls, Text } from '@react-three/drei'
-import { Canvas, useFrame } from '@react-three/fiber'
+import { Canvas } from '@react-three/fiber'
 import { useControls } from 'leva'
 import { Perf } from 'r3f-perf'
 import { useRef } from 'react'
 import { Group } from 'three'
 import { Echo3D } from 'echo3d'
+import { useThree, useFrame } from '@react-three/fiber'
+
 
 function Scene() {
   const { performance } = useControls('Monitoring', {
@@ -14,6 +16,36 @@ function Scene() {
   const { animate } = useControls('Cube', {
     animate: true,
   })
+
+  function AdaptedEcho3D(props) {
+      // This component gets the native three.js scene object
+  const { scene } = useThree()
+
+  // On every frame we can potentially update the object
+  useFrame(({ clock }) => {
+    // Update the object using the clock elapsed time or other factors
+  })
+
+  useEffect(() => {
+    // The component mounts
+
+    // We instantiate the Echo3D object with the native scene
+    const echo3DInstance = new Echo3D({ scene, ...props })
+
+    // We add the object to the scene
+    scene.add(echo3DInstance)
+
+    return () => {
+      // The component unmounts
+
+      // Don't forget to clean up after yourself
+      scene.remove(echo3DInstance)
+      echo3DInstance.dispose()
+    }
+  }, [scene, props]) // Make sure to respect the dependencies
+
+  return null
+}
 
   const cubeGroupRef = useRef<Group>(null!)
 
