@@ -12,6 +12,8 @@
     "@react-three/drei": "^9.70.1",
     "@react-three/fiber": "^8.13.0",
     "@types/three": "^0.152.1",
+    "core-js": "^3.31.0",
+    "echo3d": "^0.3.13",
     "firebase": "^9.22.1",
     "leva": "^0.9.34",
     "r3f-perf": "^7.1.2",
