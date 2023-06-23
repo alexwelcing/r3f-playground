@@ -1,30 +1,54 @@
-import { OrbitControls, Text } from '@react-three/drei'
-import { Canvas } from '@react-three/fiber'
-import { useControls } from 'leva'
+import { OrbitControls, useGLTF } from '@react-three/drei'
 import { Perf } from 'r3f-perf'
-import { useRef } from 'react'
-import { Group } from 'three'
-import { Echo3D } from 'echo3d'
-import { useThree, useFrame } from '@react-three/fiber'
+import { useEffect, useState } from 'react'
+import { Plane } from './components/Plane'
+import { Sphere } from './components/Sphere'
+import { Text } from '@react-three/drei'
+import axios from 'axios';
 
+const API_KEY = 'shrill-field-6918';
+const ENTRY_ID = '86b5c05c-95ac-4c77-a663-a6192ee937a8';
+
+type EchoObjectType = {
+  url: string;
+} | null;
 
 function Scene() {
-  const { performance } = useControls('Monitoring', {
-    performance: false,
-  })
+  const [echoObject, setEchoObject] = useState<EchoObjectType>(null);
+  const gltf = useGLTF(echoObject?.url || '', true);
 
-  const { animate } = useControls('Cube', {
-    animate: true,
-  })
+  useEffect(() => {
+    const fetchData = async () => {
+      const result = await axios.get(`https://api.echo3D.com/query?key=${API_KEY}&entry=${ENTRY_ID}`);
+      const entry = result.data.db[ENTRY_ID];
 
-  function AdaptedEcho3D(props) {
-      // This component gets the native three.js scene object
-  const { scene } = useThree()
+      let srcFile = "https://api.echo3D.com/query?key=" + API_KEY + "&file=";
+      let typeFile = entry.hologram.filename.toLowerCase().split('.').pop();
 
-  // On every frame we can potentially update the object
-  useFrame(({ clock }) => {
-    // Update the object using the clock elapsed time or other factors
-  })
+      switch (entry.hologram.type) {
+        case 'VIDEO_HOLOGRAM':
+        case 'IMAGE_HOLOGRAM':
+          srcFile += entry.hologram.storageID;
+          break;
+        case 'MODEL_HOLOGRAM':
+          switch (typeFile) {
+            case 'glb':
+              srcFile += entry.hologram.storageID;
+              break;
+            case 'gltf':
+            case 'obj':
+            case 'fbx':
+              srcFile += entry.additionalData.glbHologramStorageID;
+              break;
+          }
+          break;
+      }
+
+      setEchoObject({ url: srcFile });
+    };
+
+    fetchData();
+  }, []);
 
   useEffect(() => {
     // The component mounts
@@ -51,19 +75,29 @@ function Scene() {
 
   return (
     <>
-      <Canvas camera={{ position: [5, 5, 10], fov: 25 }}>
-        <ambientLight intensity={0.5} />
-        <directionalLight position={[10, 10, 5]} />
-        <Echo3D
-          projectId="shrill-field-6918"
-          entryId="2a15bdf2-9713-4361-8e5b-638a416c053d"
-          securityKey="2a15bdf2-9713-4361-8e5b-638a416c053d"
-        />
-        <OrbitControls minPolarAngle={0} maxPolarAngle={Math.PI / 2.1} />
-      </Canvas>
-      {performance && <Perf />}
+      <Perf position='top-left' />
+      <OrbitControls makeDefault />
+      <directionalLight
+        position={[-4, 2, 3]}
+        intensity={1.5}
+        castShadow
+        shadow-mapSize={[1024 * 2, 1024 * 2]}
+      />
+      <ambientLight intensity={0.2} />
+      <Plane position-y={-0.2} />
+      <Sphere position-x={0} position-y={1.7} />
+      <Text
+        color='#171717'
+        anchorX='center'
+        anchorY='middle'
+        fontSize={1}
+        position-z={-5}
+      >
+        r3f-playground
+      </Text>
+      {echoObject && <primitive object={gltf.scene} dispose={null} />}
     </>
-  )
+  );
 }
 
-export { Scene }
+export { Scene };

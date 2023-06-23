@@ -14,6 +14,9 @@ function Sphere() {
     gizmo: false,
   })
 
+  const { size } = useThree()
+  const aspect = size.width / size.height
+
   useFrame(({ camera }) => {
     camera.updateProjectionMatrix()
   })
