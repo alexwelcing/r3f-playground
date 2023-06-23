@@ -1,42 +1,59 @@
-import { OrbitControls } from '@react-three/drei'
-import { useFrame } from '@react-three/fiber'
-import { useControls } from 'leva'
+import { OrbitControls, useGLTF } from '@react-three/drei'
 import { Perf } from 'r3f-perf'
-import { useRef } from 'react'
-import { BoxGeometry, Mesh, MeshBasicMaterial } from 'three'
-import { Cube } from './components/Cube'
+import { useEffect, useState } from 'react'
 import { Plane } from './components/Plane'
 import { Sphere } from './components/Sphere'
 import { Text } from '@react-three/drei'
-import { Group } from 'three'
+import axios from 'axios';
 
+const API_KEY = 'shrill-field-6918';
+const ENTRY_ID = '86b5c05c-95ac-4c77-a663-a6192ee937a8';
+
+type EchoObjectType = {
+  url: string;
+} | null;
 
 function Scene() {
-  const { performance } = useControls('Monitoring', {
-    performance: false,
-  })
+  const [echoObject, setEchoObject] = useState<EchoObjectType>(null);
+  const gltf = useGLTF(echoObject?.url || '', true);
 
-  const { animate } = useControls('Cube', {
-    animate: true,
-  })
+  useEffect(() => {
+    const fetchData = async () => {
+      const result = await axios.get(`https://api.echo3D.com/query?key=${API_KEY}&entry=${ENTRY_ID}`);
+      const entry = result.data.db[ENTRY_ID];
 
-  const cubeRef = useRef<Mesh<BoxGeometry, MeshBasicMaterial>>(null)
+      let srcFile = "https://api.echo3D.com/query?key=" + API_KEY + "&file=";
+      let typeFile = entry.hologram.filename.toLowerCase().split('.').pop();
 
-  const cubeGroupRef = useRef<Group>(null)
+      switch (entry.hologram.type) {
+        case 'VIDEO_HOLOGRAM':
+        case 'IMAGE_HOLOGRAM':
+          srcFile += entry.hologram.storageID;
+          break;
+        case 'MODEL_HOLOGRAM':
+          switch (typeFile) {
+            case 'glb':
+              srcFile += entry.hologram.storageID;
+              break;
+            case 'gltf':
+            case 'obj':
+            case 'fbx':
+              srcFile += entry.additionalData.glbHologramStorageID;
+              break;
+          }
+          break;
+      }
 
-  useFrame((_, delta) => {
-    if (animate) {
-      cubeGroupRef.current!.children[0].rotation.y += delta / 3
-      cubeGroupRef.current!.children[1].rotation.y -= delta / 3
-    }
-  })
+      setEchoObject({ url: srcFile });
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <>
-      {performance && <Perf position='top-left' />}
-
+      <Perf position='top-left' />
       <OrbitControls makeDefault />
-
       <directionalLight
         position={[-4, 2, 3]}
         intensity={1.5}
@@ -44,22 +61,20 @@ function Scene() {
         shadow-mapSize={[1024 * 2, 1024 * 2]}
       />
       <ambientLight intensity={0.2} />
-
-      <group ref={cubeGroupRef}>
-      <Cube position={[0, 0, 0]} />
-      <Cube position={[0, 1.5, 0]} />
-    </group>
-      <Sphere />
-      <Plane />
+      <Plane position-y={-0.2} />
+      <Sphere position-x={0} position-y={1.7} />
       <Text
-        position={[0, 2, 0]} // Position to be set according to where the cube and sphere are located
+        color='#171717'
+        anchorX='center'
+        anchorY='middle'
         fontSize={1}
-        color={'rgb(128,238,211)'} // Change to your preferred color
+        position-z={-5}
       >
-        Alex's playground
+        r3f-playground
       </Text>
+      {echoObject && <primitive object={gltf.scene} dispose={null} />}
     </>
-  )
+  );
 }
 
-export { Scene }
+export { Scene };
