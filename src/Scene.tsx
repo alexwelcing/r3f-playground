@@ -1,10 +1,10 @@
-import { OrbitControls, useGLTF } from '@react-three/drei'
+import { OrbitControls } from '@react-three/drei'
 import { Perf } from 'r3f-perf'
 import { useEffect, useState } from 'react'
-import { Plane } from './components/Plane'
 import { Sphere } from './components/Sphere'
 import { Text } from '@react-three/drei'
 import axios from 'axios';
+import { useGLTF } from '@react-three/drei';
 
 const API_KEY = 'shrill-field-6918';
 const ENTRY_ID = '86b5c05c-95ac-4c77-a663-a6192ee937a8';
@@ -15,7 +15,6 @@ type EchoObjectType = {
 
 function Scene() {
   const [echoObject, setEchoObject] = useState<EchoObjectType>(null);
-  const gltf = useGLTF(echoObject?.url || '', true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -50,29 +49,6 @@ function Scene() {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    // The component mounts
-
-    // We instantiate the Echo3D object with the native scene
-    const echo3DInstance = new Echo3D({ scene, ...props })
-
-    // We add the object to the scene
-    scene.add(echo3DInstance)
-
-    return () => {
-      // The component unmounts
-
-      // Don't forget to clean up after yourself
-      scene.remove(echo3DInstance)
-      echo3DInstance.dispose()
-    }
-  }, [scene, props]) // Make sure to respect the dependencies
-
-  return null
-}
-
-  const cubeGroupRef = useRef<Group>(null!)
-
   return (
     <>
       <Perf position='top-left' />
@@ -84,18 +60,18 @@ function Scene() {
         shadow-mapSize={[1024 * 2, 1024 * 2]}
       />
       <ambientLight intensity={0.2} />
-      <Plane position-y={-0.2} />
-      <Sphere position-x={0} position-y={1.7} />
+      <Sphere position-x={0} position-y={2} />
       <Text
         color='#171717'
         anchorX='center'
-        anchorY='middle'
-        fontSize={1}
-        position-z={-5}
+        anchorY='top'
+        fontSize={.5}
+        position-z={5}
+        position-y={3}
       >
-        r3f-playground
+        R3F with echo3D
       </Text>
-      {echoObject && <primitive object={gltf.scene} dispose={null} />}
+      {echoObject && <primitive object={useGLTF(echoObject.url, true).scene} dispose={null} />}
     </>
   );
 }

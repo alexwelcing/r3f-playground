@@ -9,7 +9,7 @@ function Sphere() {
   const pivotRef = useRef<Group>(null)
 
   const { position, color, gizmo } = useControls('Sphere', {
-    position: [-2, 0, 0],
+    position: [0, 2, 0],
     color: 'rgb(242,171,30)',
     gizmo: false,
   })
