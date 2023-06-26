@@ -1,23 +1,25 @@
-import { OrbitControls } from '@react-three/drei'
-import { Perf } from 'r3f-perf'
-import { useEffect, useState } from 'react'
-import { Sphere } from './components/Sphere'
-import { Text } from '@react-three/drei'
+import { OrbitControls } from '@react-three/drei';
+import { Perf } from 'r3f-perf';
+import { useEffect, useState } from 'react';
+import { Sphere } from './components/Sphere';
+import { Text } from '@react-three/drei';
 import axios from 'axios';
 import { useGLTF } from '@react-three/drei';
 
 const API_KEY = 'shrill-field-6918';
-const ENTRY_ID = '86b5c05c-95ac-4c77-a663-a6192ee937a8';
+const ENTRY_ID1 = '86b5c05c-95ac-4c77-a663-a6192ee937a8';
+const ENTRY_ID2 = '2a15bdf2-9713-4361-8e5b-638a416c053d';
 
 type EchoObjectType = {
   url: string;
 } | null;
 
 function Scene() {
-  const [echoObject, setEchoObject] = useState<EchoObjectType>(null);
+  const [echoObject1, setEchoObject1] = useState<EchoObjectType>(null);
+  const [echoObject2, setEchoObject2] = useState<EchoObjectType>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchData = async (ENTRY_ID: string) => {
       const result = await axios.get(`https://api.echo3D.com/query?key=${API_KEY}&entry=${ENTRY_ID}`);
       const entry = result.data.db[ENTRY_ID];
 
@@ -30,23 +32,19 @@ function Scene() {
           srcFile += entry.hologram.storageID;
           break;
         case 'MODEL_HOLOGRAM':
-          switch (typeFile) {
-            case 'glb':
-              srcFile += entry.hologram.storageID;
-              break;
-            case 'gltf':
-            case 'obj':
-            case 'fbx':
-              srcFile += entry.additionalData.glbHologramStorageID;
-              break;
+          if (entry.additionalData.glbHologramStorageID) {
+            srcFile += entry.additionalData.glbHologramStorageID;
+          } else {
+            srcFile += entry.hologram.storageID;
           }
           break;
       }
 
-      setEchoObject({ url: srcFile });
+      return { url: srcFile };
     };
 
-    fetchData();
+    fetchData(ENTRY_ID1).then(data => setEchoObject1(data));
+    fetchData(ENTRY_ID2).then(data => setEchoObject2(data));
   }, []);
 
   return (
@@ -69,9 +67,10 @@ function Scene() {
         position-z={5}
         position-y={3}
       >
-        R3F with echo3D
+        Alex's echo3D playground
       </Text>
-      {echoObject && <primitive object={useGLTF(echoObject.url, true).scene} dispose={null} />}
+      {echoObject1 && <primitive object={useGLTF(echoObject1.url, true).scene} scale={[3.0, 3.0, 3.0]} dispose={null} />}
+      {echoObject2 && <primitive object={useGLTF(echoObject2.url, true).scene} scale={[0.1, 0.1, 0.1]} position={[2, 1.5, 0]} dispose={null} />}
     </>
   );
 }
