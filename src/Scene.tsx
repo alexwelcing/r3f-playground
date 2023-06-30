@@ -5,6 +5,7 @@ import { Sphere } from './components/Sphere';
 import { Text } from '@react-three/drei';
 import axios from 'axios';
 import { useGLTF } from '@react-three/drei';
+import Cube from './components/Cube';
 
 const API_KEY = 'shrill-field-6918';
 const ENTRY_ID1 = '86b5c05c-95ac-4c77-a663-a6192ee937a8';
@@ -17,6 +18,7 @@ type EchoObjectType = {
 function Scene() {
   const [echoObject1, setEchoObject1] = useState<EchoObjectType>(null);
   const [echoObject2, setEchoObject2] = useState<EchoObjectType>(null);
+  const [isLightOn, setIsLightOn] = useState(false);
 
   useEffect(() => {
     const fetchData = async (ENTRY_ID: string) => {
@@ -59,6 +61,7 @@ function Scene() {
       />
       <ambientLight intensity={0.2} />
       <Sphere position-x={0} position-y={2} />
+      <Cube onClick={() => setIsLightOn(!isLightOn)} />
       <Text
         color='#171717'
         anchorX='center'
@@ -69,8 +72,9 @@ function Scene() {
       >
         Alex's echo3D playground
       </Text>
+
       {echoObject1 && <primitive object={useGLTF(echoObject1.url, true).scene} scale={[3.0, 3.0, 3.0]} dispose={null} />}
-      {echoObject2 && <primitive object={useGLTF(echoObject2.url, true).scene} scale={[0.1, 0.1, 0.1]} position={[2, 1.5, 0]} dispose={null} />}
+      {echoObject2 && <primitive object={useGLTF(echoObject2.url, true).scene} scale={[0.1, 0.1, 0.1]} position={[2, 3, 0]} dispose={null} />}
     </>
   );
 }

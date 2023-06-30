@@ -1,15 +1,19 @@
-import { MeshProps } from '@react-three/fiber'
-import { forwardRef } from 'react'
-import { Mesh, BoxGeometry, MeshBasicMaterial } from 'three'
+import React from 'react';
+import { Mesh } from 'three';
 
-type CubeType = Mesh<BoxGeometry, MeshBasicMaterial>
-type CubeProps = MeshProps & { }
+interface CubeProps {
+  onClick: () => void;
+}
 
-const Cube = forwardRef<CubeType, CubeProps>(({ position }, ref) => (
-  <mesh ref={ref} position={position} castShadow>
-    <boxGeometry args={[1.5, 1.5, 1.5]} />
-    <meshStandardMaterial color={'rgb(255,78,80)'} />
-  </mesh>
-))
+const Cube: React.FC<CubeProps> = ({ onClick }) => {
+  const cubeRef = React.useRef<Mesh>();
 
-export { Cube }
+  return (
+    <mesh ref={cubeRef} onClick={onClick} position={[0, 1, 0]}>
+      <boxGeometry args={[1, 1, 1]} />
+      <meshStandardMaterial color={"#DAA520"} />
+    </mesh>
+  );
+};
+
+export default Cube;
